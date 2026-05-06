@@ -1,59 +1,47 @@
 import { motion } from 'framer-motion';
 
-const fade = (delay = 0) => ({
-  initial: { opacity: 0, y: 10 },
+const f = (d = 0) => ({
+  initial: { opacity: 0, y: 8 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.5, delay },
+  transition: { duration: 0.6, delay: d, ease: [0.25, 0.1, 0.25, 1] },
 });
 
 export default function Hero() {
   return (
-    <section id="hero" className="pt-32 pb-20 md:pt-40 md:pb-24">
+    <section id="hero" className="min-h-screen flex flex-col justify-center pt-24 pb-32">
       <div className="container-main">
-        {/* Label */}
-        <motion.p {...fade(0.05)} className="section-label mb-4">
-          Agentic AI Engineer
-        </motion.p>
-
-        {/* Heading */}
         <motion.h1
-          {...fade(0.15)}
-          className="text-[2rem] sm:text-[2.5rem] md:text-[3rem] font-semibold text-text-primary leading-[1.15] tracking-tight max-w-[18ch]"
+          {...f(0.1)}
+          className="text-[1.5rem] sm:text-[1.85rem] md:text-[2.15rem] font-medium text-text leading-[1.4] tracking-tight max-w-[32ch]"
         >
-          Building Autonomous{' '}
-          <span className="gradient-text">AI Systems</span>
+          I'm <span className="text-accent">Aditya</span>, an agentic AI
+          engineer building autonomous reasoning systems. Turning complex AI
+          research into production-ready multi-agent products.
         </motion.h1>
 
-        {/* Description */}
         <motion.p
-          {...fade(0.25)}
-          className="mt-5 text-base md:text-[17px] text-text-secondary max-w-[52ch] leading-[1.7]"
+          {...f(0.25)}
+          className="mt-12 text-[15px] text-text-secondary leading-[1.8] max-w-[52ch]"
         >
-          I design multi-agent reasoning systems, LLM orchestration pipelines,
-          and production ML infrastructure.
+          Previously built debate arenas, research agents, and recommendation
+          engines. Currently pursuing B.Tech in AI & ML, shipping deployed
+          systems.
         </motion.p>
 
-        {/* CTAs */}
-        <motion.div {...fade(0.35)} className="mt-8 flex items-center gap-3">
+        <motion.div {...f(0.35)} className="mt-16 flex items-center gap-6">
           <a
-            href="#projects"
-            onClick={(e) => {
-              e.preventDefault();
-              document.querySelector('#projects')?.scrollIntoView({ behavior: 'smooth' });
-            }}
-            className="px-5 py-2 bg-primary text-white text-sm font-medium rounded-md hover:bg-primary-hover transition-colors"
+            href="mailto:adityachavan1206@email.com"
+            className="text-[14px] text-text-muted hover:text-accent transition-colors underline underline-offset-4 decoration-border hover:decoration-accent"
           >
-            View Work
+            Email
           </a>
           <a
-            href="#contact"
-            onClick={(e) => {
-              e.preventDefault();
-              document.querySelector('#contact')?.scrollIntoView({ behavior: 'smooth' });
-            }}
-            className="px-5 py-2 text-sm font-medium text-text-muted border border-border rounded-md hover:text-text-primary hover:border-text-muted/50 transition-colors"
+            href="https://drive.google.com/file/d/1_c3OOSk8eNCfjrL5rxbrtbB38PT3K_9s/view?usp=sharing"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[14px] text-[#22c55e] hover:text-[#16a34a] transition-colors underline underline-offset-4 decoration-[#22c55e]/30 hover:decoration-[#16a34a]"
           >
-            Contact
+            Resume
           </a>
         </motion.div>
       </div>

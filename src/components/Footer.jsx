@@ -1,12 +1,9 @@
 export default function Footer() {
   return (
-    <footer className="py-10 border-t border-border">
-      <div className="container-main flex flex-col sm:flex-row items-center justify-between gap-2">
+    <footer className="py-12">
+      <div className="container-main">
         <p className="text-[12px] text-text-muted">
-          Aditya Sunil Chavan
-        </p>
-        <p className="text-[12px] text-text-muted">
-          © {new Date().getFullYear()}
+          © {new Date().getFullYear()} Aditya Sunil Chavan
         </p>
       </div>
     </footer>

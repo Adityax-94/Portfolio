@@ -1,250 +1,276 @@
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 
 /*
- * Scroll-driven navigation dial — inspired by jayesh.me
+ * Scroll-driven navigation dial — matching jayesh.me.
  *
- * Fixed to bottom-left, only the upper-right arc is visible.
- * Rotates as the user scrolls. Section labels highlight when
- * aligned with the fixed pointer at the top of the visible arc.
+ * Center pinned to viewport bottom-left corner.
+ * Only upper-right arc (~120°) visible.
+ * Rotation = scrollY * 0.06 (smooth lerp).
+ * Tick sound plays at every major tick crossing (15°).
  */
 
 const SECTIONS = [
-  { label: 'Home', id: 'hero', deg: 0 },
-  { label: 'About', id: 'about', deg: 30 },
-  { label: 'Work', id: 'projects', deg: 70 },
-  { label: 'Stack', id: 'stack', deg: 120 },
-  { label: 'Contact', id: 'contact', deg: 160 },
+  { label: 'Home', id: 'hero', deg: 45 },
+  { label: 'About', id: 'about', deg: 75 },
+  { label: 'Work', id: 'projects', deg: 105 },
+  { label: 'Skills', id: 'skills', deg: 150 },
+  { label: 'Experience', id: 'experience', deg: 180 },
+  { label: 'Contact', id: 'contact', deg: 210 },
 ];
 
-const DIAL_SIZE = 720;
-const CENTER = DIAL_SIZE / 2;
-const OUTER_R = 310;
-const RING_1 = 270;
-const RING_2 = 250;
-const RING_3 = 230;
-const INNER_R = 200;
+const SIZE = 760;
+const C = SIZE / 2;
+const LABEL_R = 340;
+const NUM_R = 310;
+const TICK_R = 295;
+const RING_1 = 275;
+const RING_2 = 260;
+const RING_3 = 245;
+const SOLID_RING = 150;
 
-// Convert degrees to radians
 const rad = (d) => (d * Math.PI) / 180;
-
-// Point on circle
-const pt = (r, deg) => ({
-  x: CENTER + r * Math.cos(rad(deg - 90)),
-  y: CENTER + r * Math.sin(rad(deg - 90)),
-});
+const ptx = (r, d) => C + r * Math.cos(rad(d - 90));
+const pty = (r, d) => C + r * Math.sin(rad(d - 90));
 
 export default function Dial() {
   const [rotation, setRotation] = useState(0);
-  const [activeSection, setActiveSection] = useState('hero');
-  const rafRef = useRef(null);
+  const [active, setActive] = useState('hero');
+  const currentRotation = useRef(0);
+  const targetRotation = useRef(0);
+  const animFrame = useRef(null);
+  const lastTickDeg = useRef(0);
+  const tickPool = useRef([]);
+  const hasInteracted = useRef(false);
+
+  // Pre-load a pool of Audio objects for rapid-fire playback
+  useEffect(() => {
+    const pool = [];
+    for (let i = 0; i < 6; i++) {
+      const a = new Audio('/tick.mp3');
+      a.volume = 0.9;
+      a.preload = 'auto';
+      pool.push(a);
+    }
+    tickPool.current = pool;
+
+    // Unlock audio on first user interaction (browser autoplay policy)
+    const unlock = () => {
+      pool.forEach((a) => {
+        a.play().then(() => { a.pause(); a.currentTime = 0; }).catch(() => { });
+      });
+      window.removeEventListener('click', unlock);
+      window.removeEventListener('touchstart', unlock);
+      window.removeEventListener('keydown', unlock);
+    };
+    window.addEventListener('click', unlock, { once: true });
+    window.addEventListener('touchstart', unlock, { once: true });
+    window.addEventListener('keydown', unlock, { once: true });
+
+    return () => {
+      window.removeEventListener('click', unlock);
+      window.removeEventListener('touchstart', unlock);
+      window.removeEventListener('keydown', unlock);
+    };
+  }, []);
+
+  // Play tick from the pool (round-robin so overlapping ticks work)
+  const poolIdx = useRef(0);
+  const playTick = useCallback(() => {
+    const pool = tickPool.current;
+    if (!pool.length) return;
+    const audio = pool[poolIdx.current % pool.length];
+    poolIdx.current++;
+    audio.currentTime = 0;
+    audio.play().catch(() => { });
+  }, []);
+
+  // Smooth lerp animation loop
+  const animate = useCallback(() => {
+    const diff = targetRotation.current - currentRotation.current;
+    if (Math.abs(diff) > 0.01) {
+      currentRotation.current += diff * 0.04;
+      setRotation(currentRotation.current);
+
+      // Check if we crossed a tick boundary (every 5°)
+      const currentTick = Math.floor(currentRotation.current / 5);
+      if (currentTick !== lastTickDeg.current) {
+        lastTickDeg.current = currentTick;
+        playTick();
+      }
+    }
+    animFrame.current = requestAnimationFrame(animate);
+  }, [playTick]);
+
+  useEffect(() => {
+    animFrame.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(animFrame.current);
+  }, [animate]);
 
   useEffect(() => {
     const onScroll = () => {
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      rafRef.current = requestAnimationFrame(() => {
-        const scrollY = window.scrollY;
-        const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-        const pct = Math.min(scrollY / maxScroll, 1);
-        // Map scroll 0–1 → rotation 0–180°
-        const angle = pct * 180;
-        setRotation(angle);
+      targetRotation.current = window.scrollY * 0.06;
 
-        // Determine active section based on which DOM element is in view
-        for (let i = SECTIONS.length - 1; i >= 0; i--) {
-          const el = document.getElementById(SECTIONS[i].id);
-          if (el && el.getBoundingClientRect().top <= window.innerHeight * 0.4) {
-            setActiveSection(SECTIONS[i].id);
-            break;
-          }
+      for (let i = SECTIONS.length - 1; i >= 0; i--) {
+        const el = document.getElementById(SECTIONS[i].id);
+        if (el && el.getBoundingClientRect().top <= window.innerHeight * 0.4) {
+          setActive(SECTIONS[i].id);
+          break;
         }
-      });
+      }
     };
 
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
-    return () => {
-      window.removeEventListener('scroll', onScroll);
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
-    };
+    return () => window.removeEventListener('scroll', onScroll);
   }, []);
 
-  const handleLabelClick = (id) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
-  };
-
-  // Generate tick marks
+  /* ── ticks ── */
   const ticks = useMemo(() => {
-    const t = [];
-    for (let d = 0; d < 360; d += 1) {
-      const isMajor = d % 15 === 0;
-      const isMid = d % 5 === 0;
-      const innerR = isMajor ? OUTER_R - 14 : isMid ? OUTER_R - 9 : OUTER_R - 5;
-      const p1 = pt(innerR, d);
-      const p2 = pt(OUTER_R, d);
-      t.push(
-        <line
-          key={`t${d}`}
-          x1={p1.x}
-          y1={p1.y}
-          x2={p2.x}
-          y2={p2.y}
-          stroke={isMajor ? 'rgba(148,163,184,0.35)' : isMid ? 'rgba(148,163,184,0.18)' : 'rgba(148,163,184,0.08)'}
-          strokeWidth={isMajor ? 1.2 : 0.5}
+    const arr = [];
+    for (let d = 0; d < 360; d++) {
+      const major = d % 15 === 0;
+      const mid = d % 5 === 0;
+      const len = major ? 14 : mid ? 8 : 4;
+      arr.push(
+        <line key={d}
+          x1={ptx(TICK_R - len, d)} y1={pty(TICK_R - len, d)}
+          x2={ptx(TICK_R, d)} y2={pty(TICK_R, d)}
+          stroke={major ? '#1A1A1A' : mid ? '#BFBFBF' : '#D9D9D9'}
+          strokeWidth={major ? 1.2 : 0.5}
         />
       );
     }
-    return t;
+    return arr;
   }, []);
 
-  // Generate degree numbers at 15° intervals
-  const degreeLabels = useMemo(() => {
-    const labels = [];
+  /* ── degree numbers ── */
+  const degLabels = useMemo(() => {
+    const arr = [];
     for (let d = 0; d < 360; d += 15) {
-      const p = pt(OUTER_R + 16, d);
-      labels.push(
-        <text
-          key={`dl${d}`}
-          x={p.x}
-          y={p.y}
-          textAnchor="middle"
-          dominantBaseline="central"
-          fill="rgba(148,163,184,0.25)"
-          fontSize="9"
-          fontFamily="'JetBrains Mono', monospace"
-        >
-          {d}
-        </text>
+      const x = ptx(NUM_R, d);
+      const y = pty(NUM_R, d);
+      arr.push(
+        <text key={d} x={x} y={y}
+          transform={`rotate(${rotation}, ${x}, ${y})`}
+          textAnchor="middle" dominantBaseline="central"
+          fill="#A8A29E" fontSize="9" fontFamily="'JetBrains Mono', monospace"
+        >{d}</text>
       );
     }
-    return labels;
-  }, []);
+    return arr;
+  }, [rotation]);
 
-  // Generate spokes from major ticks to inner ring
-  const spokes = useMemo(() => {
-    const s = [];
-    for (let d = 0; d < 360; d += 15) {
-      const p1 = pt(OUTER_R - 14, d);
-      const p2 = pt(INNER_R, d);
-      s.push(
-        <line
-          key={`s${d}`}
-          x1={p1.x}
-          y1={p1.y}
-          x2={p2.x}
-          y2={p2.y}
-          stroke="rgba(148,163,184,0.06)"
-          strokeWidth="0.75"
-          strokeDasharray="4 4"
-        />
-      );
-    }
-    return s;
-  }, []);
+  const activeSection = SECTIONS.find(s => s.id === active);
+  const activeDeg = activeSection ? activeSection.deg : -1;
 
-  // Section labels positioned outside the dial
-  const sectionLabels = SECTIONS.map((sec) => {
-    const p = pt(OUTER_R + 42, sec.deg);
-    const isActive = activeSection === sec.id;
-    return (
-      <text
-        key={sec.id}
-        x={p.x}
-        y={p.y}
-        textAnchor="middle"
-        dominantBaseline="central"
-        fill={isActive ? '#4F8CFF' : 'rgba(148,163,184,0.4)'}
-        fontSize="12"
-        fontFamily="'Inter', sans-serif"
-        fontWeight={isActive ? '600' : '400'}
-        style={{ cursor: 'pointer', transition: 'fill 0.3s' }}
-        onClick={() => handleLabelClick(sec.id)}
-        className="pointer-events-auto"
-      >
-        {sec.label}
-      </text>
-    );
-  });
+
 
   return (
     <div
-      className="fixed z-40 pointer-events-none"
-      style={{
-        width: `${DIAL_SIZE}px`,
-        height: `${DIAL_SIZE}px`,
-        bottom: `-${CENTER - 80}px`,
-        left: `-${CENTER - 80}px`,
-      }}
+      className="fixed z-40 pointer-events-none hidden md:block"
+      style={{ width: SIZE, height: SIZE, bottom: -C, left: -C }}
     >
       <svg
-        width={DIAL_SIZE}
-        height={DIAL_SIZE}
-        viewBox={`0 0 ${DIAL_SIZE} ${DIAL_SIZE}`}
-        className="w-full h-full"
+        width={SIZE} height={SIZE}
+        viewBox={`0 0 ${SIZE} ${SIZE}`}
         style={{
           transform: `rotate(${-rotation}deg)`,
           transformOrigin: '50% 50%',
-          transition: 'transform 0.15s ease-out',
+          willChange: 'transform',
         }}
       >
-        {/* Concentric dashed rings */}
-        <circle
-          cx={CENTER} cy={CENTER} r={OUTER_R}
-          stroke="rgba(148,163,184,0.15)"
-          strokeWidth="1"
-          fill="none"
-        />
-        <circle
-          cx={CENTER} cy={CENTER} r={RING_1}
-          stroke="rgba(148,163,184,0.1)"
-          strokeWidth="0.75"
-          strokeDasharray="6 4"
-          fill="none"
-        />
-        <circle
-          cx={CENTER} cy={CENTER} r={RING_2}
-          stroke="rgba(148,163,184,0.08)"
-          strokeWidth="0.75"
-          strokeDasharray="4 3"
-          fill="none"
-        />
-        <circle
-          cx={CENTER} cy={CENTER} r={RING_3}
-          stroke="rgba(148,163,184,0.06)"
-          strokeWidth="0.5"
-          strokeDasharray="3 5"
-          fill="none"
-        />
-        <circle
-          cx={CENTER} cy={CENTER} r={INNER_R}
-          stroke="rgba(148,163,184,0.05)"
-          strokeWidth="0.5"
-          fill="none"
-        />
+        <circle cx={C} cy={C} r={TICK_R} stroke="#BFBFBF" strokeWidth="1" fill="white" />
+        <circle cx={C} cy={C} r={RING_1} stroke="#BFBFBF" strokeWidth="1" strokeDasharray="6 3" fill="white" opacity="0.8" />
+        <circle cx={C} cy={C} r={RING_2} stroke="#BFBFBF" strokeWidth="1" strokeDasharray="6 3" fill="white" opacity="0.9" />
+        <circle cx={C} cy={C} r={RING_3} stroke="#BFBFBF" strokeWidth="1" strokeDasharray="6 3" fill="white" opacity="0.95" />
+        <circle cx={C} cy={C} r={SOLID_RING} stroke="#BFBFBF99" strokeWidth="1" fill="white" />
 
-        {/* Spokes */}
-        {spokes}
-
-        {/* Tick marks */}
+        {(() => {
+          const arr = [];
+          for (let d = 0; d < 360; d += 15) {
+            arr.push(
+              <line key={d}
+                x1={ptx(TICK_R - 14, d)} y1={pty(TICK_R - 14, d)}
+                x2={ptx(RING_3, d)} y2={pty(RING_3, d)}
+                stroke="#D6D3CE" strokeWidth="0.75" strokeDasharray="4 4"
+              />
+            );
+          }
+          return arr;
+        })()}
         {ticks}
+        {degLabels}
 
-        {/* Degree labels */}
-        {degreeLabels}
+        {SECTIONS.map((s) => {
+          const isActive = active === s.id;
+          const x = ptx(LABEL_R, s.deg);
+          const y = pty(LABEL_R, s.deg);
+          return (
+            <text key={s.id}
+              x={x} y={y}
+              transform={`rotate(${rotation}, ${x}, ${y})`}
+              textAnchor="middle" dominantBaseline="central"
+              fill={isActive ? '#22c55e' : '#a8a29e'}
+              fontSize="13" fontWeight={isActive ? 600 : 400}
+              fontFamily="'Inter', sans-serif"
+              className="pointer-events-auto cursor-pointer"
+              style={{ transition: 'fill 0.3s ease' }}
+              onClick={() => document.getElementById(s.id)?.scrollIntoView({ behavior: 'smooth' })}
+            >{s.label}</text>
+          );
+        })}
 
-        {/* Section labels */}
-        {sectionLabels}
       </svg>
 
-      {/* Fixed pointer — stays at the "north" of the visible arc */}
-      <div
-        className="absolute"
-        style={{
-          top: `${CENTER - OUTER_R - 2}px`,
-          left: `${CENTER - 0.5}px`,
-          width: '1px',
-          height: '18px',
-          background: 'rgba(148,163,184,0.5)',
-        }}
-      />
+      {/* Fixed active section indicator (Funnel) */}
+      <svg
+        width={SIZE} height={SIZE}
+        viewBox={`0 0 ${SIZE} ${SIZE}`}
+        className="absolute top-0 left-0 pointer-events-none"
+      >
+        <g>
+          {[-14, 0, 14].map((offset) => {
+            const isCenter = offset === 0;
+            const startDeg = 45 + offset;
+            const endDeg = 45;
+            const startR = SOLID_RING;
+            const endR = TICK_R - 14;
+
+            const startX = ptx(startR, startDeg);
+            const startY = pty(startR, startDeg);
+            const endX = ptx(endR, endDeg);
+            const endY = pty(endR, endDeg);
+
+            const cp1R = startR + (endR - startR) * 0.4;
+            const cp1X = ptx(cp1R, startDeg);
+            const cp1Y = pty(cp1R, startDeg);
+
+            const cp2R = startR + (endR - startR) * 0.7;
+            const cp2X = ptx(cp2R, endDeg);
+            const cp2Y = pty(cp2R, endDeg);
+
+            return (
+              <path
+                key={offset}
+                d={`M ${startX} ${startY} C ${cp1X} ${cp1Y} ${cp2X} ${cp2Y} ${endX} ${endY}`}
+                fill="none"
+                stroke="#BFBFBF"
+                strokeWidth="1"
+                strokeDasharray={isCenter ? "2 5" : "4 4"}
+                strokeLinecap={isCenter ? "round" : "butt"}
+              />
+            );
+          })}
+
+          {/* Solid active tick mark */}
+          <line
+            x1={ptx(TICK_R - 14, 45)} y1={pty(TICK_R - 14, 45)}
+            x2={ptx(TICK_R + 6, 45)} y2={pty(TICK_R + 6, 45)}
+            stroke="#404040"
+            strokeWidth="1.2"
+          />
+        </g>
+      </svg>
     </div>
   );
 }
