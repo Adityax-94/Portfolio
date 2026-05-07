@@ -35,7 +35,7 @@ export default function Skills() {
                 {items.map((item) => (
                   <span
                     key={item}
-                    className="px-3 py-1.5 text-[12.5px] tracking-wide text-text-secondary bg-surface/30 border border-border-subtle rounded-md transition-all duration-300 hover:border-green-500/40 hover:text-green-600 hover:bg-surface hover:shadow-sm hover:-translate-y-[2px] cursor-default"
+                    className="inline-flex items-center px-3.5 py-2 text-[12.5px] leading-none tracking-wide text-text-secondary bg-surface/30 border border-border-subtle rounded-md transition-all duration-300 hover:border-green-500/40 hover:text-green-600 hover:bg-surface hover:shadow-sm hover:-translate-y-[2px] cursor-default"
                   >
                     {item}
                   </span>

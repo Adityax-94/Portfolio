@@ -18,6 +18,7 @@ const f = (d = 0) => ({
 export default function Hero() {
   const [systemActive, setSystemActive] = useState(false);
   const [logIndex, setLogIndex] = useState(0);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     if (!systemActive) {
@@ -41,6 +42,14 @@ export default function Hero() {
     }
   }, [systemActive]);
 
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      setMousePos({ x: e.clientX, y: e.clientY });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
   return (
     <>
       <AnimatePresence>
@@ -49,7 +58,7 @@ export default function Hero() {
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1, ease: "circOut" }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-[#0C0C0C] cursor-pointer"
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0C0C0C] cursor-pointer"
             onClick={() => setSystemActive(true)}
           >
             <div className="w-full max-w-xl px-10">
@@ -89,18 +98,28 @@ export default function Hero() {
         )}
       </AnimatePresence>
 
-      <section id="hero" className="min-h-screen flex flex-col justify-center pt-24 pb-32">
-        <div className="container-main">
-          {systemActive && (
-            <motion.div
-              {...f(0.05)}
-              className="mb-8 inline-flex items-center gap-2.5 px-3 py-1.5 rounded-full border border-border bg-surface/50 text-[12px] text-text-secondary cursor-default w-fit shadow-sm"
-            >
-              <div className="w-2 h-2 rounded-full bg-accent shadow-[0_0_8px_rgba(34,197,94,0.6)]" />
-              <span className="font-mono">Neural Link Active</span>
-            </motion.div>
-          )}
+      <section id="hero" className="min-h-screen flex flex-col justify-center pt-24 pb-32 relative">
+        <motion.div
+          {...f(0)}
+          className="fixed top-6 left-6 md:top-8 md:left-8 z-[60] flex gap-6 font-mono"
+        >
+          <span className="text-text-muted text-[13px] mt-[1px]">00</span>
+          <div className="flex flex-col gap-1">
+            <a href="mailto:adityachavan1206@email.com" className="text-[14.5px] text-text-secondary hover:text-text transition-colors">Email</a>
+            <a href="https://github.com/Adityax-94" target="_blank" rel="noopener noreferrer" className="text-[14.5px] text-text-secondary hover:text-text transition-colors">GitHub</a>
+            <a href="https://t.me/Adityax_94" target="_blank" rel="noopener noreferrer" className="text-[14.5px] text-text-secondary hover:text-text transition-colors">Telegram</a>
+          </div>
+        </motion.div>
 
+        <motion.div
+          {...f(0)}
+          className="fixed top-6 right-6 md:top-8 md:right-8 z-[60] flex flex-col font-mono text-[11px] text-[#777777] pointer-events-none tracking-widest gap-0.5"
+        >
+          <span>X, {String(mousePos.x).padStart(5, '0')}°</span>
+          <span>Y, {String(mousePos.y).padStart(5, '0')}°</span>
+        </motion.div>
+
+        <div className="container-main">
           <motion.h1
             {...f(0.1)}
             className="text-[1.5rem] sm:text-[1.85rem] md:text-[2.15rem] font-medium text-text leading-[1.4] tracking-tight max-w-[32ch]"
@@ -115,7 +134,7 @@ export default function Hero() {
             className="mt-12 text-[15px] text-text-secondary leading-[1.8] max-w-[52ch]"
           >
             Previously built debate arenas, research agents, and recommendation
-            engines. Currently pursuing B.Tech in AI & ML, shipping deployed
+            engines. Currently pursuing B.Tech in <span className="text-accent">AI & ML</span>, shipping deployed
             systems.
           </motion.p>
 

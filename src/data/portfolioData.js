@@ -9,6 +9,7 @@ export const projects = [
     ],
     tech: ['Python', 'LangGraph', 'LangChain', 'FastAPI', 'React', 'Groq'],
     github: 'https://github.com/Adityax-94/TwoMinds',
+    demo: 'https://two-minds-nine.vercel.app/',
   },
   {
     title: 'Gestify',
@@ -20,7 +21,7 @@ export const projects = [
     ],
     tech: ['Python', 'MediaPipe', 'Scikit-learn', 'OpenCV', 'PyAutoGUI'],
     github: 'https://github.com/Adityax-94/Gestify',
-
+    demo: 'https://huggingface.co/spaces/Adityax-94/gestify',
   },
   {
     title: 'Founder Research Agent',
@@ -32,6 +33,7 @@ export const projects = [
     ],
     tech: ['Python', 'LangGraph', 'LangChain', 'Docker', 'Tavily API'],
     github: 'https://github.com/Adityax-94/Founder_reserach_agent',
+    demo: 'https://founder-reserach-agent.vercel.app/',
   },
   {
     title: 'Spotify Recommendation System',
@@ -43,6 +45,7 @@ export const projects = [
     ],
     tech: ['Python', 'Scikit-learn', 'TensorFlow', 'Pandas', 'NumPy', 'Streamlit'],
     github: 'https://github.com/Adityax-94/Song-preference',
+    demo: 'https://songs-recommender-by-aditya.streamlit.app/',
   },
 ];
 

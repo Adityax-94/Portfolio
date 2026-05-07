@@ -13,10 +13,10 @@ function ProjectItem({ project }) {
       initial={{ opacity: 0, y: 20 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
-      className="py-20 md:py-28 border-b border-border last:border-b-0"
+      className="py-28 md:py-36 border-b border-border"
     >
       {/* Title row */}
-      <div className="flex items-start justify-between gap-6">
+      <div className="flex items-center justify-between gap-6">
         <h3 className="text-[1.1rem] font-medium text-text tracking-tight">
           {project.title}
         </h3>
@@ -24,11 +24,11 @@ function ProjectItem({ project }) {
           href={project.github}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-shrink-0 flex items-center gap-1 text-[13px] text-text-muted hover:text-text transition-colors mt-0.5"
+          className="flex-shrink-0 flex items-center gap-1.5 text-[13px] text-text-muted hover:text-text transition-colors"
           aria-label={`${project.title} on GitHub`}
         >
-          <FaGithub size={15} />
-          <HiArrowUpRight size={10} className="opacity-40" />
+          <FaGithub size={18} />
+          <HiArrowUpRight size={11} className="opacity-40" />
         </a>
       </div>
 
@@ -47,13 +47,24 @@ function ProjectItem({ project }) {
         ))}
       </ul>
 
-      {/* Tech tags */}
-      <div className="mt-10 flex flex-wrap gap-3">
-        {project.tech.map((t) => (
-          <span key={t} className="px-2.5 py-1 text-[11px] font-mono text-text-muted bg-surface border border-border-subtle rounded">
-            {t}
-          </span>
-        ))}
+      {/* Tech tags & Links */}
+      <div className="mt-10 flex items-start justify-between gap-6 w-full">
+        <div className="flex flex-wrap gap-3">
+          {project.tech.map((t) => (
+            <span key={t} className="inline-flex items-center px-3 py-1.5 text-[11px] leading-none font-mono text-text-muted bg-surface border border-border-subtle rounded">
+              {t}
+            </span>
+          ))}
+        </div>
+        
+        <a 
+          href={project.demo || '#'} 
+          target="_blank" 
+          rel="noopener noreferrer"
+          className="flex-shrink-0 inline-flex items-center text-[12px] leading-none font-mono text-green-500 transition-all duration-300 -translate-y-[2px] hover:-translate-y-[4px] hover:text-green-400 hover:shadow-sm cursor-pointer"
+        >
+          live_demo ↗
+        </a>
       </div>
     </motion.article>
   );
