@@ -14,8 +14,8 @@ const SECTIONS = [
   { label: 'About', id: 'about', deg: 75 },
   { label: 'Work', id: 'projects', deg: 105 },
   { label: 'Skills', id: 'skills', deg: 150 },
-  { label: 'Experience', id: 'experience', deg: 180 },
-  { label: 'Contact', id: 'contact', deg: 210 },
+  { label: 'Experience', id: 'experience', deg: 195 },
+  { label: 'Contact', id: 'contact', deg: 225 },
 ];
 
 const SIZE = 760;
@@ -108,20 +108,56 @@ export default function Dial() {
 
   useEffect(() => {
     const onScroll = () => {
-      targetRotation.current = window.scrollY * 0.06;
+      const triggerY = window.scrollY + window.innerHeight * 0.4;
+      
+      const offsets = SECTIONS.map(s => {
+        const el = document.getElementById(s.id);
+        const top = el ? el.getBoundingClientRect().top + window.scrollY : 0;
+        return { ...s, top };
+      });
 
-      for (let i = SECTIONS.length - 1; i >= 0; i--) {
-        const el = document.getElementById(SECTIONS[i].id);
-        if (el && el.getBoundingClientRect().top <= window.innerHeight * 0.4) {
-          setActive(SECTIONS[i].id);
+      let newTarget = 0;
+      let newActive = SECTIONS[0].id;
+
+      for (let i = 0; i < offsets.length; i++) {
+        const curr = offsets[i];
+        const next = offsets[i + 1];
+
+        // Skip missing elements during lazy load to prevent jumpiness
+        if (i > 0 && curr.top === 0) continue; 
+
+        if (!next || triggerY <= next.top || next.top === 0) {
+          newActive = curr.id;
+          if (i === 0 && triggerY <= curr.top) {
+            newTarget = curr.deg - 45;
+          } else if (!next || next.top === 0) {
+            const extra = triggerY - curr.top;
+            newTarget = Math.min((curr.deg - 45) + extra * 0.03, 220 - 45);
+          } else {
+            const diff = next.top - curr.top;
+            const progress = diff > 0 ? Math.max(0, Math.min(1, (triggerY - curr.top) / diff)) : 0;
+            newTarget = (curr.deg - 45) + progress * (next.deg - curr.deg);
+          }
           break;
         }
       }
+
+      targetRotation.current = newTarget;
+      setActive(newActive);
     };
 
     window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll);
     onScroll();
-    return () => window.removeEventListener('scroll', onScroll);
+    
+    // Re-calculate shortly after mount to ensure lazy components are loaded
+    const timer = setTimeout(onScroll, 800);
+
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      window.removeEventListener('resize', onScroll);
+      clearTimeout(timer);
+    };
   }, []);
 
   /* ── ticks ── */
@@ -215,7 +251,7 @@ export default function Dial() {
               fontFamily="'Inter', sans-serif"
               className="pointer-events-auto cursor-pointer"
               style={{ transition: 'fill 0.3s ease' }}
-              onClick={() => document.getElementById(s.id)?.scrollIntoView({ behavior: 'smooth' })}
+              onClick={() => document.getElementById(s.id)?.scrollIntoView({ behavior: 'smooth', block: 'center' })}
             >{s.label}</text>
           );
         })}

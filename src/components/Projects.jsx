@@ -13,7 +13,7 @@ function ProjectItem({ project }) {
       initial={{ opacity: 0, y: 20 }}
       animate={inView ? { opacity: 1, y: 0 } : {}}
       transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
-      className="py-28 md:py-36 border-b border-border"
+      className="pb-12 md:pb-16 pt-4 border-b border-border last:border-0"
     >
       {/* Title row */}
       <div className="flex items-center justify-between gap-6">
@@ -74,7 +74,7 @@ export default function Projects() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.05 });
 
   return (
-    <section id="projects" className="min-h-screen pt-32 pb-48">
+    <section id="projects" className="min-h-screen pt-32 pb-32">
       <div className="container-main" ref={ref}>
         <motion.p
           initial={{ opacity: 0 }}
@@ -85,7 +85,7 @@ export default function Projects() {
           Work
         </motion.p>
 
-        <div>
+        <div className="flex flex-col gap-10 md:gap-14">
           {projects.map((p) => (
             <ProjectItem key={p.title} project={p} />
           ))}
