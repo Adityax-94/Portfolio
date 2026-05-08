@@ -17,22 +17,35 @@ export default function Experience() {
           Experience
         </motion.p>
 
-        <div>
+        <div className="flex flex-col gap-10">
           {experience.map((e, i) => (
             <motion.div
               key={e.role}
               initial={{ opacity: 0, y: 10 }}
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ duration: 0.5, delay: 0.05 + i * 0.06, ease: [0.25, 0.1, 0.25, 1] }}
-              className="flex items-baseline justify-between py-8 border-b border-border-subtle"
+              className="pb-10 border-b border-border-subtle flex flex-col gap-4"
             >
-              <div className="flex items-baseline gap-3 flex-wrap">
-                <span className="text-[14px] text-text">{e.role}</span>
-                <span className="text-[12px] text-text-muted">· {e.org}</span>
+              <div className="flex items-baseline justify-between">
+                <div className="flex items-baseline gap-3 flex-wrap">
+                  <span className="text-[14px] text-text">{e.role}</span>
+                  <span className="text-[12px] text-text-muted">· {e.org}</span>
+                </div>
+                {e.period && (
+                  <span className="text-[12px] text-text-muted whitespace-nowrap ml-6">
+                    {e.period}
+                  </span>
+                )}
               </div>
-              <span className="text-[12px] text-text-muted whitespace-nowrap ml-6">
-                {e.period}
-              </span>
+              {e.description && (
+                <ul className="list-disc flex flex-col gap-2 mt-2 ml-4">
+                  {e.description.map((desc, idx) => (
+                    <li key={idx} className="text-[13px] text-text-muted pl-1 leading-relaxed text-left">
+                      {desc}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </motion.div>
           ))}
         </div>
