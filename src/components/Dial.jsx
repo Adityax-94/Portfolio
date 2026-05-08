@@ -47,7 +47,7 @@ export default function Dial() {
     const pool = [];
     for (let i = 0; i < 6; i++) {
       const a = new Audio('/tick.mp3');
-      a.volume = 0.9;
+      a.volume = 0.7;
       a.preload = 'auto';
       pool.push(a);
     }

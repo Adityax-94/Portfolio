@@ -73,18 +73,21 @@ export const skills = {
 
 export const experience = [
   {
-    role: 'Training & Placement Committee',
-    org: 'College T&P Cell',
-    period: '2024 – Present',
+    role: 'Software Engineer Intern',
+    org: 'Scalefull Technologies, Pune',
+    period: 'Feb 2026 – Present',
+    description: [
+      'Collected, cleaned, and preprocessed structured and unstructured datasets for model training.',
+      'Performed exploratory data analysis (EDA) to identify patterns and insights.',
+      'Evaluated model performance using accuracy, precision, recall, F1-score, and confusion matrix.'
+    ]
   },
   {
-    role: 'AI Association Member',
-    org: 'College AI Club',
-    period: '2023 – Present',
-  },
-  {
-    role: 'Project Lead — AI Initiatives',
-    org: 'Academic Projects',
-    period: '2023 – Present',
-  },
+    role: 'Self Development',
+    org: 'Open Source Contributions',
+    description: [
+      'Actively contributed to open-source ML projects, collaborating on the development and deployment of predictive models while integrating community-driven improvements to enhance system efficiency and scalability.',
+      'Consistently engaged in self-development by exploring emerging research in LLMs, agentic AI, and deep learning — translating findings into practical implementations and staying current with the rapidly evolving AI/ML landscape.'
+    ]
+  }
 ];
