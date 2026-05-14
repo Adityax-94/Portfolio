@@ -1,14 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const LOGS = [
-  { text: "Hello there! Establishing secure connection...", delay: 0 },
-  { text: "Preparing the portfolio experience...", delay: 0.4 },
-  { text: "Optimizing workspace for viewing...", delay: 0.8 },
-  { text: "Note: Immersive audio is currently on standby.", delay: 1.2, type: 'warn' },
-  { text: "Interaction required to start the session.", delay: 1.6, type: 'error' },
-];
-
 const f = (d = 0) => ({
   initial: { opacity: 0, y: 8 },
   animate: { opacity: 1, y: 0 },
@@ -17,24 +9,17 @@ const f = (d = 0) => ({
 
 export default function Hero() {
   const [systemActive, setSystemActive] = useState(false);
-  const [logIndex, setLogIndex] = useState(0);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
     if (!systemActive) {
       document.body.style.overflow = 'hidden';
 
-      // Cycle through logs
-      const intervals = LOGS.map((log, i) =>
-        setTimeout(() => setLogIndex(i + 1), log.delay * 1000)
-      );
-
       // Listen for "any key"
       const handleKeyDown = () => setSystemActive(true);
       window.addEventListener('keydown', handleKeyDown);
 
       return () => {
-        intervals.forEach(clearTimeout);
         window.removeEventListener('keydown', handleKeyDown);
       };
     } else {
@@ -55,45 +40,30 @@ export default function Hero() {
       <AnimatePresence>
         {!systemActive && (
           <motion.div
+            key="entrance"
             initial={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 1, ease: "circOut" }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-[#0C0C0C] cursor-pointer"
+            exit={{ opacity: 0, scale: 0.98, filter: "blur(10px)" }}
+            transition={{ duration: 0.8, ease: [0.25, 1, 0.5, 1] }}
+            className="fixed inset-0 z-[100] flex items-center justify-center bg-bg group cursor-pointer"
             onClick={() => setSystemActive(true)}
           >
-            <div className="w-full max-w-xl px-10">
-              <div className="font-mono text-[13px] leading-relaxed">
-                {LOGS.slice(0, logIndex).map((log, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, x: -5 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    className={`mb-1.5 ${log.type === 'warn' ? 'text-amber-500/80' :
-                      log.type === 'error' ? 'text-red-500/90 font-medium' :
-                        'text-zinc-500'
-                      }`}
-                  >
-                    <span className="opacity-30 mr-3">[{new Date().toLocaleTimeString([], { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' })}]</span>
-                    {log.text}
-                  </motion.div>
-                ))}
-
-                {logIndex === LOGS.length && (
-                  <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ repeat: Infinity, duration: 0.8, repeatType: "reverse" }}
-                    className="mt-8 flex items-center gap-3 text-accent"
-                  >
-                    <span className="text-[14px]">❯</span>
-                    <span className="text-[13px] tracking-tight uppercase font-bold">Execute manual handshake _Click anywhere to continue..</span>
-                  </motion.div>
-                )}
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1.2, ease: "easeOut" }}
+              className="flex flex-col items-center gap-8"
+            >
+              <div className="relative flex items-center justify-center w-20 h-20 rounded-full border border-border-subtle group-hover:border-accent transition-colors duration-500">
+                <motion.div 
+                  animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
+                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+                  className="w-2.5 h-2.5 bg-accent rounded-full mb-[1px]"
+                />
               </div>
-            </div>
-
-            {/* Ambient scanline effect */}
-            <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.1)_50%),linear-gradient(90deg,rgba(255,0,0,0.03),rgba(0,255,0,0.01),rgba(0,0,255,0.03))] bg-[length:100%_4px,3px_100%]"></div>
+              <div className="font-mono text-[12px] uppercase tracking-[0.25em] text-[#444444] group-hover:text-[#888888] transition-colors duration-500">
+                Click Here to Enter
+              </div>
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>
