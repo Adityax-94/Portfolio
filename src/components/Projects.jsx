@@ -74,7 +74,7 @@ export default function Projects() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.05 });
 
   return (
-    <section id="projects" className="min-h-screen pt-32 pb-32">
+    <section id="projects" className="min-h-screen flex flex-col justify-center pt-32 pb-32">
       <div className="container-main" ref={ref}>
         <motion.p
           initial={{ opacity: 0 }}

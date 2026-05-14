@@ -6,7 +6,7 @@ export default function Skills() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.15 });
 
   return (
-    <section id="skills" className="min-h-[80vh] flex flex-col justify-center pt-32 pb-32">
+    <section id="skills" className="min-h-screen flex flex-col justify-center pt-32 pb-32">
       <div className="container-main" ref={ref}>
         <motion.p
           initial={{ opacity: 0 }}

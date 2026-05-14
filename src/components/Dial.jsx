@@ -108,34 +108,47 @@ export default function Dial() {
 
   useEffect(() => {
     const onScroll = () => {
-      const triggerY = window.scrollY + window.innerHeight * 0.4;
-      
-      const offsets = SECTIONS.map(s => {
+      const maxScroll = Math.max(0, document.documentElement.scrollHeight - window.innerHeight);
+      const currentY = window.scrollY;
+
+      const points = SECTIONS.map((s, i) => {
         const el = document.getElementById(s.id);
-        const top = el ? el.getBoundingClientRect().top + window.scrollY : 0;
-        return { ...s, top };
+        const topOffset = el ? el.getBoundingClientRect().top + window.scrollY : 0;
+        
+        let perfectScroll = topOffset;
+
+        return { ...s, perfectScroll };
       });
+
+      // Force first and last points
+      if (points.length > 0) {
+        points[0].perfectScroll = 0;
+        points[points.length - 1].perfectScroll = maxScroll;
+      }
+
+      // Ensure perfectScroll values are monotonically increasing
+      for (let i = 1; i < points.length; i++) {
+        if (points[i].perfectScroll <= points[i - 1].perfectScroll) {
+          points[i].perfectScroll = points[i - 1].perfectScroll + 1;
+        }
+      }
 
       let newTarget = 0;
       let newActive = SECTIONS[0].id;
 
-      for (let i = 0; i < offsets.length; i++) {
-        const curr = offsets[i];
-        const next = offsets[i + 1];
+      for (let i = 0; i < points.length; i++) {
+        const curr = points[i];
+        const next = points[i + 1];
 
-        // Skip missing elements during lazy load to prevent jumpiness
-        if (i > 0 && curr.top === 0) continue; 
-
-        if (!next || triggerY <= next.top || next.top === 0) {
+        if (!next || currentY < next.perfectScroll) {
           newActive = curr.id;
-          if (i === 0 && triggerY <= curr.top) {
+          if (!next) {
             newTarget = curr.deg - 45;
-          } else if (!next || next.top === 0) {
-            const extra = triggerY - curr.top;
-            newTarget = Math.min((curr.deg - 45) + extra * 0.03, 220 - 45);
+          } else if (currentY <= curr.perfectScroll) {
+            newTarget = curr.deg - 45; // Handle case where currentY < 0
           } else {
-            const diff = next.top - curr.top;
-            const progress = diff > 0 ? Math.max(0, Math.min(1, (triggerY - curr.top) / diff)) : 0;
+            const diff = next.perfectScroll - curr.perfectScroll;
+            const progress = diff > 0 ? (currentY - curr.perfectScroll) / diff : 0;
             newTarget = (curr.deg - 45) + progress * (next.deg - curr.deg);
           }
           break;

@@ -6,7 +6,7 @@ export default function Experience() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.2 });
 
   return (
-    <section id="experience" className="min-h-[80vh] pt-32 pb-48">
+    <section id="experience" className="min-h-screen flex flex-col justify-center pt-32 pb-32">
       <div className="container-main" ref={ref}>
         <motion.p
           initial={{ opacity: 0 }}

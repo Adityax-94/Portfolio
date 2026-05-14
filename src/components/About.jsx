@@ -5,7 +5,7 @@ export default function About() {
   const [ref, inView] = useInView({ triggerOnce: true, threshold: 0.3 });
 
   return (
-    <section id="about" className="min-h-[80vh] flex flex-col justify-center pt-32 pb-32">
+    <section id="about" className="min-h-screen flex flex-col justify-center pt-32 pb-32">
       <div className="container-main" ref={ref}>
         <motion.div
           initial={{ opacity: 0, y: 12 }}
