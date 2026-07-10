@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
+import { motion } from 'framer-motion';
 
 /*
  * Scroll-driven navigation dial — matching jayesh.me.
@@ -52,6 +53,9 @@ const pty = (r, d) => C + r * Math.sin(rad(d - 90));
 export default function Dial() {
   const [rotation, setRotation] = useState(0);
   const [active, setActive] = useState('hero');
+  const [isMuted, setIsMuted] = useState(() => {
+    return localStorage.getItem('dial-muted') === 'true';
+  });
   const currentRotation = useRef(0);
   const targetRotation = useRef(0);
   const animFrame = useRef(null);
@@ -59,12 +63,21 @@ export default function Dial() {
   const tickPool = useRef([]);
   const hasInteracted = useRef(false);
 
+  // Sync volume of pre-loaded pool with mute state
+  useEffect(() => {
+    tickPool.current.forEach((a) => {
+      a.volume = isMuted ? 0 : 0.7;
+    });
+    localStorage.setItem('dial-muted', isMuted);
+  }, [isMuted]);
+
   // Pre-load a pool of Audio objects for rapid-fire playback
   useEffect(() => {
+    const initialMuted = localStorage.getItem('dial-muted') === 'true';
     const pool = [];
     for (let i = 0; i < 6; i++) {
       const a = new Audio('/tick.mp3');
-      a.volume = 0.7;
+      a.volume = initialMuted ? 0 : 0.7;
       a.preload = 'auto';
       pool.push(a);
     }
@@ -232,7 +245,8 @@ export default function Dial() {
 
 
   return (
-    <div
+    <>
+      <div
       className="fixed z-40 pointer-events-none hidden md:block"
       style={{ width: SIZE, height: SIZE, bottom: -C, left: -C }}
     >
@@ -338,5 +352,63 @@ export default function Dial() {
         </g>
       </svg>
     </div>
-  );
+
+    {/* Floating Mute Button */}
+    <button
+      onClick={() => setIsMuted(prev => !prev)}
+      className="fixed bottom-6 right-6 md:bottom-8 md:right-8 z-50 w-12 h-12 rounded-full border border-border-subtle bg-bg/85 backdrop-blur-xs shadow-xs text-text-secondary hover:text-accent hover:border-accent/40 transition-all duration-300 pointer-events-auto flex items-center justify-center cursor-pointer group"
+      title={isMuted ? "Unmute sound" : "Mute sound"}
+    >
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        className="w-[22px] h-[22px] transition-transform duration-300 group-hover:scale-105"
+      >
+        {/* Speaker body outline */}
+        <path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M11 5L6 9H3v6h3l5 4V5z"
+        />
+
+        {/* Inner sound wave arc */}
+        <motion.path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M15.5 8.5a5 5 0 0 1 0 7"
+          animate={{
+            opacity: isMuted ? 0 : 1,
+            x: isMuted ? -2 : 0,
+          }}
+          transition={{ duration: 0.2 }}
+        />
+
+        {/* Outer sound wave arc */}
+        <motion.path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M19 5a9 9 0 0 1 0 14"
+          animate={{
+            opacity: isMuted ? 0 : 1,
+            x: isMuted ? -4 : 0,
+          }}
+          transition={{ duration: 0.2, delay: isMuted ? 0 : 0.05 }}
+        />
+
+        {/* Mute 'X' mark on the right (drawn when muted) */}
+        <motion.path
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          d="M16 9.5l5 5m0-5l-5 5"
+          initial={{ pathLength: 0 }}
+          animate={{ pathLength: isMuted ? 1 : 0 }}
+          transition={{ duration: 0.2, ease: "easeInOut" }}
+        />
+      </svg>
+    </button>
+  </>
+);
 }
