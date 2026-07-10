@@ -2,10 +2,10 @@ import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
 const NAV_ITEMS = [
+  { id: 'about', label: 'About' },
   { id: 'projects', label: 'Work' },
   { id: 'experience', label: 'Experience' },
   { id: 'skills', label: 'Skills' },
-  { id: 'about', label: 'About' },
   { id: 'contact', label: 'Contact' },
 ];
 
@@ -18,21 +18,29 @@ export default function Navbar() {
   };
 
   useEffect(() => {
-    const sectionIds = NAV_ITEMS.map((item) => item.id);
-
     const handleScroll = () => {
       // Scroll progress
       const scrollTop = window.scrollY;
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
       setScrollProgress(docHeight > 0 ? (scrollTop / docHeight) * 100 : 0);
 
-      // Active section detection
-      const scrollPosition = scrollTop + window.innerHeight / 3;
+      // Active section detection using getBoundingClientRect
       let current = '';
-      for (const id of sectionIds) {
-        const el = document.getElementById(id);
-        if (el && el.offsetTop <= scrollPosition) {
-          current = id;
+      const isAtBottom = (window.innerHeight + window.scrollY) >= (document.documentElement.scrollHeight - 20);
+      
+      if (isAtBottom) {
+        current = NAV_ITEMS[NAV_ITEMS.length - 1].id;
+      } else {
+        for (const item of NAV_ITEMS) {
+          const el = document.getElementById(item.id);
+          if (el) {
+            const rect = el.getBoundingClientRect();
+            // If the element occupies the middle-top portion of the screen (y = 120px)
+            if (rect.top <= 120 && rect.bottom > 120) {
+              current = item.id;
+              break;
+            }
+          }
         }
       }
       setActiveSection(current);

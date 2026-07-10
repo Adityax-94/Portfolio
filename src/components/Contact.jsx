@@ -31,6 +31,14 @@ export default function Contact() {
               GitHub
             </a>
             <a
+              href="https://www.linkedin.com/in/adityaschavan/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-[14px] text-[#22c55e] hover:text-[#16a34a] transition-colors underline underline-offset-4 decoration-[#22c55e]/30 hover:decoration-[#16a34a]"
+            >
+              LinkedIn
+            </a>
+            <a
               href="https://calendly.com/adityachavan1206/30min"
               target="_blank"
               rel="noopener noreferrer"
