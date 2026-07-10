@@ -11,12 +11,29 @@ import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 
 const SECTIONS = [
   { label: 'Home', id: 'hero', deg: 45 },
-  { label: 'About', id: 'about', deg: 75 },
-  { label: 'Work', id: 'projects', deg: 105 },
-  { label: 'Skills', id: 'skills', deg: 150 },
-  { label: 'Experience', id: 'experience', deg: 195 },
+  { label: 'About', id: 'about', deg: 80 },
+  { label: 'Work', id: 'projects', deg: 115 },
+  { label: 'Experience', id: 'experience', deg: 153 },
+  { label: 'Skills', id: 'skills', deg: 190 },
   { label: 'Contact', id: 'contact', deg: 225 },
 ];
+
+// Major markings at section degrees + 2 intermediate readings between each pair
+const MAJOR_DEGS = new Set([
+  ...SECTIONS.map(s => s.deg),
+  // Between Home(45) → About(80)
+  57, 69,
+  // Between About(80) → Work(115)
+  92, 104,
+  // Between Work(115) → Experience(153)
+  128, 140,
+  // Between Experience(153) → Skills(190)
+  165, 178,
+  // Between Skills(190) → Contact(225)
+  202, 214,
+  // Hidden arc fill
+  237, 249, 261, 273, 285, 297, 309, 321, 333, 345, 357, 9, 21, 33
+]);
 
 const SIZE = 760;
 const C = SIZE / 2;
@@ -177,7 +194,7 @@ export default function Dial() {
   const ticks = useMemo(() => {
     const arr = [];
     for (let d = 0; d < 360; d++) {
-      const major = d % 15 === 0;
+      const major = MAJOR_DEGS.has(d);
       const mid = d % 5 === 0;
       const len = major ? 14 : mid ? 8 : 4;
       arr.push(
@@ -195,7 +212,7 @@ export default function Dial() {
   /* ── degree numbers ── */
   const degLabels = useMemo(() => {
     const arr = [];
-    for (let d = 0; d < 360; d += 15) {
+    for (const d of MAJOR_DEGS) {
       const x = ptx(NUM_R, d);
       const y = pty(NUM_R, d);
       arr.push(
@@ -203,7 +220,7 @@ export default function Dial() {
           transform={`rotate(${rotation}, ${x}, ${y})`}
           textAnchor="middle" dominantBaseline="central"
           fill="#A8A29E" fontSize="9" fontFamily="'JetBrains Mono', monospace"
-        >{d}</text>
+        >{d === 9 ? 0 : d}</text>
       );
     }
     return arr;
@@ -236,7 +253,7 @@ export default function Dial() {
 
         {(() => {
           const arr = [];
-          for (let d = 0; d < 360; d += 15) {
+          for (const d of MAJOR_DEGS) {
             arr.push(
               <line key={d}
                 x1={ptx(TICK_R - 14, d)} y1={pty(TICK_R - 14, d)}

@@ -47,14 +47,14 @@ export default function Hero() {
             className="fixed inset-0 z-[100] flex items-center justify-center bg-bg group cursor-pointer"
             onClick={() => setSystemActive(true)}
           >
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1.2, ease: "easeOut" }}
               className="flex flex-col items-center gap-8"
             >
               <div className="relative flex items-center justify-center w-20 h-20 rounded-full border border-border-subtle group-hover:border-accent transition-colors duration-500">
-                <motion.div 
+                <motion.div
                   animate={{ scale: [1, 1.2, 1], opacity: [0.5, 1, 0.5] }}
                   transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                   className="w-2.5 h-2.5 bg-accent rounded-full mb-[1px]"
@@ -77,6 +77,7 @@ export default function Hero() {
           <div className="flex flex-col gap-1">
             <a href="mailto:adityachavan1206@email.com" className="text-[14.5px] text-text-secondary hover:text-text transition-colors">Email</a>
             <a href="https://github.com/Adityax-94" target="_blank" rel="noopener noreferrer" className="text-[14.5px] text-text-secondary hover:text-text transition-colors">GitHub</a>
+            <a href="https://www.linkedin.com/in/adityaschavan/" target="_blank" rel="noopener noreferrer" className="text-[14.5px] text-text-secondary hover:text-text transition-colors">LinkedIn</a>
             <a href="https://t.me/Adityax_94" target="_blank" rel="noopener noreferrer" className="text-[14.5px] text-text-secondary hover:text-text transition-colors">Telegram</a>
           </div>
         </motion.div>
@@ -103,9 +104,10 @@ export default function Hero() {
             {...f(0.25)}
             className="mt-12 text-[15px] text-text-secondary leading-[1.8] max-w-[52ch]"
           >
-            Previously built debate arenas, research agents, and recommendation
-            engines. Currently pursuing B.Tech in <span className="text-accent">AI & ML</span>, shipping deployed
-            systems.
+            Currently a Product Developer at{' '}
+            <a href="https://www.seragen.co/" target="_blank" rel="noopener noreferrer" className="text-accent hover:text-accent-hover transition-colors underline underline-offset-4 decoration-accent/30 hover:decoration-accent">Seragen Biotherapeutics</a>,
+            shipping clinical AI platforms. Previously built debate arenas,
+            research agents, and recommendation engines.
           </motion.p>
 
           <motion.div {...f(0.35)} className="mt-16 flex items-center gap-6">

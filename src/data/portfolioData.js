@@ -73,9 +73,20 @@ export const skills = {
 
 export const experience = [
   {
+    role: 'Product Developer',
+    org: 'Seragen Biotherapeutics, Chennai',
+    period: 'Jun 2026 – Present',
+    description: [
+      'Architected and shipped Ask SIA — a clinical workflow platform orchestrating WhatsApp-based patient intake, SIA clinical engine integration, and doctor-reviewed protocol delivery.',
+      'Built full-stack products end-to-end using FastAPI, React, PostgreSQL, and Redis with Azure cloud infrastructure and CI/CD pipelines.',
+      'Developed SIA 3D Biology — an interactive clinical visualization engine for reproductive immunology, enabling spatial biology exploration and algorithmic decision support.',
+      'Engineered secure, HIPAA-conscious systems with role-based access control, audit logging, and therapeutic gate enforcement for patient safety.',
+    ]
+  },
+  {
     role: 'Software Engineer Intern',
     org: 'Scalefull Technologies, Pune',
-    period: 'Feb 2026 – Present',
+    period: 'Feb 2026 – May 2026',
     description: [
       'Collected, cleaned, and preprocessed structured and unstructured datasets for model training.',
       'Performed exploratory data analysis (EDA) to identify patterns and insights.',

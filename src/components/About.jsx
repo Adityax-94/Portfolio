@@ -22,6 +22,12 @@ export default function About() {
             pipelines, and production ML systems. I don't just prototype ,
             every project in my portfolio is deployed and functional.
           </p>
+          <p className="text-[15px] text-text-secondary leading-[1.85] max-w-[56ch] mt-6">
+            Currently at <a href="https://www.seragen.co/" target="_blank" rel="noopener noreferrer" className="text-accent hover:text-accent-hover transition-colors underline underline-offset-4 decoration-accent/30 hover:decoration-accent">Seragen Biotherapeutics</a>,
+            I'm applying these capabilities to healthcare — building clinical workflow
+            platforms, 3D biology visualization engines, and secure patient systems
+            that bridge AI with real-world medical decision-making.
+          </p>
         </motion.div>
       </div>
     </section>

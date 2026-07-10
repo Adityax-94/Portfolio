@@ -41,8 +41,8 @@ export default function App() {
         <Suspense fallback={null}>
           <About />
           <Projects />
-          <Skills />
           <Experience />
+          <Skills />
           <Contact />
           <Footer />
         </Suspense>
